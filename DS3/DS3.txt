@@ -1,45 +1,18 @@
 import pandas as pd
 
-# Load the iris dataset
+# Load the dataset
 iris = pd.read_csv('iris.csv')
 
-# Display the first few rows of the dataset
-print("First few rows of the dataset:")
-print(iris.head())
+# Task 1: Grouped summary statistics (Mean, Median, Min, Max, Std)
+print("Summary Statistics (Grouped by Species):\n")
+grouped_stats = iris.groupby('Species')['SepalLengthCm'].agg(['mean', 'median', 'min', 'max', 'std'])
+print(grouped_stats)
 
-# General statistics for the entire dataset
-print("\nSummary statistics for the whole dataset:")
-print(iris.describe(percentiles=[0.25, 0.50, 0.75, 0.90]))
+# Optional: Convert grouped values into a list per category (for reporting)
+print("\nMean Sepal Length per Species (as list):")
+print(grouped_stats['mean'].tolist())
 
-# Grouped summary statistics by species
-print("\nGrouped Summary Statistics (Mean, Std, 90th Percentile) by Species:")
-
-# Mean, Standard Deviation, and 90th Percentile of Sepal Length by Species
-grouped_mean = iris.groupby("Species")["SepalLengthCm"].mean()
-grouped_std = iris.groupby("Species")["SepalLengthCm"].std()
-grouped_percentile_90 = iris.groupby("Species")["SepalLengthCm"].quantile(0.90)
-
-# Display results
-print("\nMean of Sepal Length (in cm) per Species:")
-print(grouped_mean)
-
-print("\nStandard Deviation of Sepal Length (in cm) per Species:")
-print(grouped_std)
-
-print("\n90th Percentile of Sepal Length (in cm) per Species:")
-print(grouped_percentile_90)
-
-# Filtering dataset for each species
-iris_setosa = iris[iris['Species'] == 'Iris-setosa']
-iris_versicolor = iris[iris['Species'] == 'Iris-versicolor']
-iris_virginica = iris[iris['Species'] == 'Iris-virginica']
-
-# Detailed descriptive statistics for each species
-print("\nStatistical Details for Iris-setosa:")
-print(iris_setosa.describe(percentiles=[0.25, 0.50, 0.75, 0.90]))
-
-print("\nStatistical Details for Iris-versicolor:")
-print(iris_versicolor.describe(percentiles=[0.25, 0.50, 0.75, 0.90]))
-
-print("\nStatistical Details for Iris-virginica:")
-print(iris_virginica.describe(percentiles=[0.25, 0.50, 0.75, 0.90]))
+# Task 2: Basic statistical details (describe) for each species
+for species in ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']:
+    print(f"\nStatistical Details for {species}:")
+    print(iris[iris['Species'] == species].describe(percentiles=[0.25, 0.50, 0.75, 0.90]))
