@@ -1,0 +1,27 @@
+import pandas as pd
+
+# Load the dataset
+df = pd.read_csv('t20.csv')
+df.head()
+
+# Basic summary
+print("Missing values:\n", df.isnull().sum())
+print("\nDescription:\n", df.describe())
+
+# printing info
+df.info()
+print("\nShape:", df.shape)
+print("\nData types:\n", df.dtypes)
+print("\nColumns:\n", df.columns)
+
+# Rename and encode
+df.rename(columns={'Player': 'Player Name'}, inplace=True)
+df.head()
+
+# Filter and display rows
+print("\nRows where Mat > 162:\n", df[df['Mat'] > 162])
+
+#one-hot encode
+df = pd.get_dummies(df, columns=['Player Name'])
+
+df.head()

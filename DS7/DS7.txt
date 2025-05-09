@@ -1,0 +1,73 @@
+# Step 1: Import required libraries
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords, wordnet
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+from nltk import pos_tag
+from sklearn.feature_extraction.text import TfidfVectorizer
+import pandas as pd
+
+# Step 2: Download necessary NLTK resources
+nltk.download('averaged_perceptron_tagger_eng')
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
+
+# Step 3: Sample documents
+documents = [
+    "Natural Language Processing is a fascinating field of AI.",
+    "Text analytics involves preprocessing and transforming text data.",
+    "Lemmatization returns dictionary forms of words, unlike stemming."
+]
+
+# Step 4: Helper function to map POS tags
+def get_wordnet_pos(tag):
+    if tag.startswith('J'):
+        return wordnet.ADJ
+    elif tag.startswith('V'):
+        return wordnet.VERB
+    elif tag.startswith('N'):
+        return wordnet.NOUN
+    elif tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return wordnet.NOUN
+
+# Step 5: Preprocessing function
+stop_words = set(stopwords.words('english'))
+ps = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+
+def preprocess(doc):
+    tokens = word_tokenize(doc.lower())
+    pos_tags = pos_tag(tokens)
+    filtered = [w for w in tokens if w.isalpha() and w not in stop_words]
+    stemmed = [ps.stem(w) for w in filtered]
+    lemmatized = [lemmatizer.lemmatize(w, get_wordnet_pos(pos)) for w, pos in pos_tags if w.isalpha() and w not in stop_words]
+    return {
+        "tokens": tokens,
+        "pos_tags": pos_tags,
+        "filtered": filtered,
+        "stemmed": stemmed,
+        "lemmatized": lemmatized
+    }
+
+# Step 6: Apply preprocessing to each document
+for i, doc in enumerate(documents):
+    print(f"\n--- Document {i+1} ---")
+    result = preprocess(doc)
+    print("Tokens:", result["tokens"])
+    print("POS Tags:", result["pos_tags"])
+    print("Filtered:", result["filtered"])
+    print("Stemmed:", result["stemmed"])
+    print("Lemmatized:", result["lemmatized"])
+
+# Step 7: TF-IDF Vectorization
+vectorizer = TfidfVectorizer(stop_words='english')
+tfidf_matrix = vectorizer.fit_transform(documents)
+
+# Step 8: Display TF-IDF matrix
+df = pd.DataFrame(tfidf_matrix.toarray(), columns=vectorizer.get_feature_names_out())
+print("\nTF-IDF Representation:\n")
+print(df)

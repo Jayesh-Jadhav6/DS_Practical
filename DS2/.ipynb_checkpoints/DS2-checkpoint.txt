@@ -1,0 +1,73 @@
+import pandas as pd
+import numpy as np
+
+dataf = pd.read_csv('student_dataset.csv')
+dataf.head()
+
+# Artificially introduce missing values (for demonstration purposes)
+dataf.loc[0:3, 'Math'] = np.nan  # Introduce missing values in the 'Math' column
+dataf.loc[5:8, 'Physics'] = np.nan  # Introduce missing values in the 'Physics' column
+print("artificially added some null values if there arent any in dataset for demonstration")
+
+dataf.isnull()
+
+# Check for missing values
+print(dataf.isnull().sum())
+
+# 1. Handle missing values
+dataf.fillna(dataf.mean(numeric_only=True), inplace=True)
+print("Missing values handled (if any).\n")
+
+# Verify that missing values have been handled
+print("After handling missing values:\n", dataf.isnull().sum())
+
+numeric_cols = dataf.select_dtypes(include='number')
+Q1 = numeric_cols.quantile(0.25)
+Q3 = numeric_cols.quantile(0.75)
+IQR = Q3 - Q1
+dataf = dataf[(numeric_cols >= Q1 - 1.5 * IQR) & (numeric_cols <= Q3 + 1.5 * IQR)].dropna()
+print("Outliers removed (if any).\n")
+
+# 3. Transform one variable (log transform on 'Math')
+dataf['Math'] = np.log1p(dataf['Math'])
+print("Log transformation applied to 'Math' column.\n")
+
+# Show final summary
+print("Final Data Summary:\n")
+print(dataf.describe())
+
+-----------
+
+import pandas as pd
+import numpy as np
+
+# Step 1: Create dataset with missing values and outliers
+data = {
+    'StudentID': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'Math': [85, 90, np.nan, 92, 88, 300, 95, np.nan, 83, 91],         # 300 is outlier, NaNs present
+    'Physics': [80, 89, 75, 85, 82, np.nan, 96, 70, 84, 200],          # 200 is outlier, NaN present
+    'Chemistry': [78, 85, 82, 89, 87, 95, 92, 76, np.nan, 88]          # 1 missing value
+}
+
+dataf = pd.DataFrame(data)
+print("Initial Dataset:\n", dataf)
+
+# Step 2: Handle missing values (Requirement 1)
+dataf.fillna(dataf.mean(numeric_only=True), inplace=True)
+print("\nAfter Handling Missing Values:\n", dataf)
+
+# Step 3: Remove outliers using IQR method (Requirement 2)
+numeric_cols = dataf.select_dtypes(include='number')
+Q1 = numeric_cols.quantile(0.25)
+Q3 = numeric_cols.quantile(0.75)
+IQR = Q3 - Q1
+dataf = dataf[(numeric_cols >= Q1 - 1.5 * IQR) & (numeric_cols <= Q3 + 1.5 * IQR)].dropna()
+print("\nAfter Removing Outliers:\n", dataf)
+
+# Step 4: Apply log transformation to 'Math' (Requirement 3)
+dataf['Math'] = np.log1p(dataf['Math'])
+print("\nAfter Log Transformation on 'Math':\n", dataf)
+
+# Step 5: Final summary
+print("\nFinal Summary Statistics:\n")
+print(dataf.describe())

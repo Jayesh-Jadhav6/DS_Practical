@@ -1,0 +1,49 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import confusion_matrix, classification_report
+
+# Load the dataset
+df = pd.read_csv('iris.csv')
+
+# Separate features and target
+X = df.iloc[:, :-1]  # All columns except the last one
+y = df.iloc[:, -1]   # Last column (target)
+
+# Split the dataset into training and testing sets (70% train, 30% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Create and train the Gaussian Naive Bayes model
+model = GaussianNB()
+model.fit(X_train, y_train)
+
+# Predict the target for the test set
+y_pred = model.predict(X_test)
+
+# Compute the confusion matrix
+labels = y.unique()  # Unique class labels
+cm = confusion_matrix(y_test, y_pred, labels=labels)
+print("Confusion Matrix:\n", cm)
+
+# Calculate metrics for each class
+for i, label in enumerate(labels):
+    TP = cm[i, i]
+    FP = cm[:, i].sum() - TP
+    FN = cm[i, :].sum() - TP
+    TN = cm.sum() - (TP + FP + FN)
+
+    accuracy = (TP + TN) / cm.sum()
+    error_rate = 1 - accuracy
+    precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+    recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+
+    print(f"\nClass: {label}")
+    print(f"TP = {TP}, FP = {FP}, TN = {TN}, FN = {FN}")
+    print(f"Accuracy: {accuracy:.2f}")
+    print(f"Error Rate: {error_rate:.2f}")
+    print(f"Precision: {precision:.2f}")
+    print(f"Recall: {recall:.2f}")
+
+# Optional: Display full classification report
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
